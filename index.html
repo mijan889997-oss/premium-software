@@ -3,93 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Premium Software & IT Services</title>
+    <title>Premium Software Store</title>
     <style>
-        /* আপনার ওয়েবসাইটের আগের সব সুন্দর ডিজাইন ও স্টাইল এখানে থাকবে */
         body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f4f7f6;
+            font-family: 'Segoe UI', Arial, sans-serif;
             margin: 0;
-            padding: 20px;
-            text-align: center;
+            padding: 0;
+            background-color: #f4f6f9;
+            color: #333;
         }
+        header {
+            background: linear-gradient(135deg, #1f4068, #162447);
+            color: white;
+            text-align: center;
+            padding: 40px 20px;
+        }
+        header h1 { margin: 0; font-size: 2rem; }
+        header p { margin: 10px 0 0; opacity: 0.9; font-size: 1rem; }
         .container {
             max-width: 600px;
-            margin: auto;
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin: 30px auto;
+            padding: 0 15px;
         }
-        h1 { color: #333; }
+        .card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            padding: 20px;
+            text-align: center;
+            border-top: 4px solid #1f4068;
+            margin-bottom: 25px;
+        }
+        .card h3 { margin-top: 0; color: #162447; font-size: 1.3rem; }
+        .price {
+            font-size: 1.4rem;
+            color: #25D366;
+            font-weight: bold;
+            margin: 12px 0;
+        }
         .btn {
             background-color: #25D366;
             color: white;
-            padding: 12px 20px;
+            padding: 10px 20px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 1rem;
             text-decoration: none;
             display: inline-block;
-            margin-top: 20px;
+            font-weight: bold;
+            width: 80%;
         }
+        .btn:hover { background-color: #1ebd57; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>Premium Software & IT Services</h1>
-    <p>আপনার পছন্দের সফটওয়্যারটি অর্ডার করতে নিচের বাটনে চাপ দিন।</p>
-    
-    <a href="#" class="btn" id="orderBtn">হোয়াটসঅ্যাপে অর্ডার করুন</a>
-</div>
+    <header>
+        <h1>Premium Software Store</h1>
+        <p>আপনার ব্যবসার জন্য প্রফেশনাল সফটওয়্যার এবং আইটি সলিউশন</p>
+    </header>
 
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
-    import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    <div class="container">
+        <div class="card">
+            <h3>বিজনেস ম্যানেজমেন্ট সফটওয়্যার</h3>
+            <p>দোকান বা ব্যবসার সম্পূর্ণ হিসাব ও ইনভেন্টরি ম্যানেজমেন্ট সিস্টেম।</p>
+            <div class="price">৳ ৮,৫০০</div>
+            <button class="btn" onclick="placeOrder('বিজনেস ম্যানেজমেন্ট সফটওয়্যার', '৳ ৮,৫০০')">অর্ডার করুন</button>
+        </div>
 
-    // আপনার দেওয়া ফায়ারবেস কনফিগারেশন ও ডাটাবেজ লিংক
-    const firebaseConfig = {
-      apiKey: "AIzaSyCQBADg7AoisxQRsgIrdNA8Zi26TMzLa-A",
-      authDomain: "carding-boss.firebaseapp.com",
-      projectId: "carding-boss",
-      storageBucket: "carding-boss.firebasestorage.app",
-      messagingSenderId: "848198839392",
-      appId: "1:848198839392:web:fcb3fbe3aa63232987a705",
-      measurementId: "G-PEGH8Z55N6",
-      databaseURL: "https://carding-boss-default-rtdb.asia-southeast1.firebasedatabase.app/"
-    };
+        <div class="card">
+            <h3>কাস্টম অ্যান্ড্রয়েড অ্যাপ</h3>
+            <p>আপনার ব্র্যান্ডের নামে প্লে-স্টোর অ্যাপ ডেভেলপমেন্ট সリューション।</p>
+            <div class="price">৳ ১৫,০০০</div>
+            <button class="btn" onclick="placeOrder('অ্যান্ড্রয়েড অ্যাপ', '৳ ১৫,০০০')">অর্ডার করুন</button>
+        </div>
 
-    // ফায়ারবেস ইনিশিয়েট
-    const app = initializeApp(firebaseConfig);
-    const analytics = getAnalytics(app);
-    const database = getDatabase(app);
+        <div class="card">
+            <h3>ই-কমার্স ওয়েবসাইট</h3>
+            <p>পণ্য বিক্রির জন্য প্রিমিয়াম ডিজাইনের কমপ্লিট ই-কমার্স ওয়েবসাইট।</p>
+            <div class="price">৳ ৫,০০০</div>
+            <button class="btn" onclick="placeOrder('ই-কমার্স ওয়েবসাইট', '৳ ৫,০০০')">অর্ডার করুন</button>
+        </div>
+    </div>
 
-    // হোয়াটসঅ্যাপে মেসেজ পাঠানোর এবং ডাটাবেজে সেভ করার স্ক্রিপ্ট
-    document.getElementById('orderBtn').addEventListener('click', function(e) {
-        e.preventDefault();
-        
-        // অর্ডারের তথ্য ডাটাবেজে সেভ করার জন্য
-        const orderData = {
-            productName: "Premium Software Service",
-            timestamp: new Date().toISOString()
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCQBADg7AoisxQRsgIrdNA8Zi26TMzLa-A",
+            authDomain: "carding-boss.firebaseapp.com",
+            projectId: "carding-boss",
+            storageBucket: "carding-boss.firebasestorage.app",
+            messagingSenderId: "848198839392",
+            appId: "1:848198839392:web:fcb3fbe3aa63232987a705",
+            measurementId: "G-PEGH8Z55N6",
+            databaseURL: "https://carding-boss-default-rtdb.asia-southeast1.firebasedatabase.app/"
         };
-        
-        const ordersRef = ref(database, 'orders');
-        push(ordersRef, orderData).then(() => {
-            // ডাটাবেজে সেভ হওয়ার পর আপনার দেওয়া হোয়াটসঅ্যাপ নাম্বারে মেসেজ যাবে
-            var phoneNumber = "8801785686993"; 
-            var message = "হ্যালো! আমি প্রিমিয়াম সফটওয়্যার ওয়েবসাইট থেকে একটি সার্ভিস অর্ডার করতে চাই।";
-            
-            var whatsappUrl = "https://wa.me/" + phoneNumber + "?text=" + encodeURIComponent(message);
-            window.open(whatsappUrl, '_blank');
-        }).catch((error) => {
-            console.error("Database Error: ", error);
-        });
-    });
-</script>
 
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        window.placeOrder = function(productName, productPrice) {
+            const orderData = {
+                productName: productName,
+                price: productPrice,
+                timestamp: new Date().toISOString()
+            };
+
+            const ordersRef = ref(database, 'orders');
+            push(ordersRef, orderData)
+                .then(() => {
+                    const whatsappNumber = "8801785686993"; 
+                    const message = `হ্যালো! আমি ওয়েবসাইট থেকে "${productName}" (মূল্য: ${productPrice}) অর্ডারটি কনফার্ম করতে চাই।`;
+                    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+                    window.open(whatsappUrl, '_blank');
+                })
+                .catch((error) => {
+                    alert("অর্ডার প্রসেস করতে সমস্যা হয়েছে।");
+                });
+        };
+    </script>
 </body>
 </html>
