@@ -1,129 +1,524 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Premium Software Store</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
-        body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f6f9;
-            color: #333;
-        }
-        header {
-            background: linear-gradient(135deg, #1f4068, #162447);
-            color: white;
-            text-align: center;
-            padding: 40px 20px;
-        }
-        header h1 { margin: 0; font-size: 2rem; }
-        header p { margin: 10px 0 0; opacity: 0.9; font-size: 1rem; }
-        .container {
-            max-width: 600px;
-            margin: 30px auto;
-            padding: 0 15px;
-        }
-        .card {
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-            padding: 20px;
-            text-align: center;
-            border-top: 4px solid #1f4068;
-            margin-bottom: 25px;
-        }
-        .card h3 { margin-top: 0; color: #162447; font-size: 1.3rem; }
-        .price {
-            font-size: 1.4rem;
-            color: #25D366;
-            font-weight: bold;
-            margin: 12px 0;
-        }
-        .btn {
-            background-color: #25D366;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1rem;
-            text-decoration: none;
-            display: inline-block;
-            font-weight: bold;
-            width: 80%;
-        }
-        .btn:hover { background-color: #1ebd57; }
+        :root { --red: #ff0000; --green: #25d366; --blue: #007bff; --bg: #f4f4f4; --dark: #333; }
+        * { margin:0; padding:0; box-sizing:border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: var(--bg); padding-bottom: 100px; }
+        header { background: white; padding: 15px; text-align: center; border-bottom: 2px solid #ddd; position: sticky; top: 0; z-index: 1000; display: flex; justify-content: space-between; align-items: center; }
+        .brand { font-size: 22px; font-weight: bold; margin-left: auto; margin-right: auto; }
+        .brand span { color: var(--blue); }
+        .menu-dot { font-size: 28px; cursor: pointer; color: #333; font-weight: bold; background: none; border: none; }
+        .header-actions { display: flex; gap: 15px; align-items: center; position: absolute; right: 20px; top: 15px; }
+        .cart-icon-btn { font-size: 24px; cursor: pointer; background: none; border: none; position: relative; }
+        .cart-count { position: absolute; top: -5px; right: -8px; background: var(--red); color: white; border-radius: 50%; padding: 2px 6px; font-size: 11px; font-weight: bold; }
+        
+        .search-container { padding: 10px; background: white; border-bottom: 1px solid #eee; }
+        .search-box { width: 100%; padding: 10px 15px; border: 1px solid #ccc; border-radius: 25px; outline: none; font-size: 14px; }
+        
+        .side-menu { position: fixed; top: 0; left: -300px; width: 300px; height: 100%; background: white; z-index: 6000; transition: 0.4s; box-shadow: 2px 0 15px rgba(0,0,0,0.2); padding: 25px 20px; overflow-y: auto; }
+        .side-menu.active { left: 0; }
+        .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 5900; display: none; }
+        .menu-item { padding: 15px; border-bottom: 1px solid #f1f1f1; display: flex; align-items: center; gap: 12px; cursor: pointer; font-size: 15px; color: #444; }
+        .products { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 10px; }
+        .card { background: white; border-radius: 12px; padding: 10px; text-align: center; border: 1px solid #eee; display: flex; flex-direction: column; justify-content: space-between; }
+        .card img { width: 100%; height: 120px; object-fit: contain; border-radius: 8px; cursor: pointer; transition: 0.2s; }
+        .card img:hover { transform: scale(1.03); }
+        .benefit-box { font-size: 11px; color: #444; background: #f0fdf4; padding: 8px; margin: 8px 0; border-radius: 5px; text-align: left; min-height: 55px; border-left: 3px solid var(--blue); line-height: 1.4; overflow: hidden; flex-grow: 1; }
+        .price { color: var(--red); font-weight: bold; font-size: 17px; }
+        .old-price { color: #999; text-decoration: line-through; font-size: 12px; margin-left: 5px; }
+        
+        .buy-btn { background: var(--blue); color: white; width: 100%; padding: 10px; border: none; border-radius: 20px; font-weight: bold; cursor: pointer; margin-top: 5px; }
+        .add-cart-btn { background: var(--dark); color: white; width: 100%; padding: 8px; border: none; border-radius: 20px; font-weight: bold; cursor: pointer; margin-top: 5px; font-size: 12px; }
+        
+        .panel { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 7000; display: none; padding: 25px; overflow-y: auto; }
+        .close-btn { float: right; font-size: 30px; border: none; background: none; color: #999; cursor: pointer; }
+        input, textarea, select { width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #ccc; border-radius: 8px; }
+        .nav { position: fixed; bottom: 0; width: 100%; background: #fff; display: flex; justify-content: space-around; align-items: center; padding: 10px 0; z-index: 2000; border-top: 1px solid #eee; height: 75px; }
+        .nav-btn { color: #555; text-align: center; font-size: 11px; background: none; border: none; flex: 1; cursor: pointer; display: flex; flex-direction: column; align-items: center; text-decoration: none; }
+        .nav-btn img { width: 24px; margin-bottom: 4px; }
+        .home-link { background: var(--blue); width: 65px; height: 65px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 5px solid white; position: relative; top: -25px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .home-link img { filter: invert(1); width: 35px; }
+        .call-action-btn { background: var(--blue); color: white; width: 100%; padding: 15px; border: none; border-radius: 30px; font-weight: bold; display: flex; align-items: center; justify-content: center; text-decoration: none; margin-bottom: 10px; }
+        .sms-action-btn { background: #6c757d; color: white; width: 100%; padding: 15px; border: none; border-radius: 30px; font-weight: bold; display: flex; align-items: center; justify-content: center; text-decoration: none; }
+        .wa-btn { background: var(--green); color: white; width: 100%; padding: 15px; border: none; border-radius: 30px; font-weight: bold; display: flex; align-items: center; justify-content: center; text-decoration: none; margin-bottom: 10px; }
+        #adminArea { display: none; background: #fff; margin: 15px; padding: 20px; border: 2px solid var(--blue); border-radius: 15px; }
+        .confirm-btn { background: var(--blue); color: white; padding: 10px 20px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        
+        .img-popup { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 8000; display: none; justify-content: center; align-items: center; flex-direction: column; padding: 20px; }
+        .img-popup img { max-width: 100%; max-height: 70vh; border-radius: 12px; box-shadow: 0 5px 25px rgba(255,255,255,0.2); object-fit: contain; }
+        .popup-close-btn { margin-top: 20px; background: white; color: black; border: none; padding: 12px 30px; border-radius: 25px; font-weight: bold; font-size: 16px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+
+        .filter-container { margin-bottom: 15px; display: flex; gap: 5px; overflow-x: auto; padding: 5px; }
+        .filter-btn { padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 12px; white-space: nowrap; }
+        
+        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; margin-bottom: 10px; color: black; }
+        .cart-item-remove { color: red; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
-
     <header>
-        <h1>Premium Software Store</h1>
-        <p>আপনার ব্যবসার জন্য প্রফেশনাল সফটওয়্যার এবং আইটি সলিউশন</p>
+        <div class="brand">PREMIUM <span>SOFTWARE</span></div>
+        <div class="header-actions">
+            <button class="cart-icon-btn" onclick="openPanel('cartPanel')">🛒<span class="cart-count" id="cartCount">0</span></button>
+            <div class="menu-dot" onclick="toggleMenu()">⋮</div>
+        </div>
     </header>
 
-    <div class="container">
-        <div class="card">
-            <h3>বিজনেস ম্যানেজমেন্ট সফটওয়্যার</h3>
-            <p>দোকান বা ব্যবসার সম্পূর্ণ হিসাব ও ইনভেন্টরি ম্যানেজমেন্ট সিস্টেম।</p>
-            <div class="price">৳ ৮,৫০০</div>
-            <button class="btn" onclick="placeOrder('বিজনেস ম্যানেজমেন্ট সফটওয়্যার', '৳ ৮,৫০০')">অর্ডার করুন</button>
-        </div>
-
-        <div class="card">
-            <h3>কাস্টম অ্যান্ড্রয়েড অ্যাপ</h3>
-            <p>আপনার ব্র্যান্ডের নামে প্লে-স্টোর অ্যাপ ডেভেলপমেন্ট সリューション।</p>
-            <div class="price">৳ ১৫,০০০</div>
-            <button class="btn" onclick="placeOrder('অ্যান্ড্রয়েড অ্যাপ', '৳ ১৫,০০০')">অর্ডার করুন</button>
-        </div>
-
-        <div class="card">
-            <h3>ই-কমার্স ওয়েবসাইট</h3>
-            <p>পণ্য বিক্রির জন্য প্রিমিয়াম ডিজাইনের কমপ্লিট ই-কমার্স ওয়েবসাইট।</p>
-            <div class="price">৳ ৫,০০০</div>
-            <button class="btn" onclick="placeOrder('ই-কমার্স ওয়েবসাইট', '৳ ৫,০০০')">অর্ডার করুন</button>
-        </div>
+    <div class="search-container">
+        <input type="text" id="searchBar" class="search-box" placeholder="সফটওয়্যারের নাম লিখে সার্চ করুন..." oninput="searchProducts()">
+    </div>
+    
+    <div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
+    <div class="side-menu" id="sideMenu">
+        <h2 style="color: var(--blue); border-bottom: 2px solid var(--blue); padding-bottom: 10px; margin-bottom: 20px;">মেনু</h2>
+        <div class="menu-item" onclick="openPanel('aboutPanel'); toggleMenu()">🌟 আমাদের বিশেষত্ব কেন?</div>
+        <div class="menu-item" onclick="openPanel('trackingPanel'); toggleMenu()">📦 অর্ডার ট্র্যাক করুন</div>
+        <div class="menu-item" onclick="location.href='https://wa.me/8801785686993'">💬 কাস্টমার সাপোর্ট</div>
+        <div class="menu-item" onclick="toggleMenu()" style="color: red; margin-top: 30px;">✖ বন্ধ করুন</div>
+    </div>
+    
+    <div id="aboutPanel" class="panel">
+        <button class="close-btn" onclick="closePanel('aboutPanel')">✕</button>
+        <h2 style="margin-top:40px; color:var(--blue);">আমাদের বিশেষত্ব কেন?</h2><br>
+        <p style="line-height:1.6; color:#444;"> ১. ১০০% ওয়ার্কিং ও প্রিমিয়াম সফটওয়্যারের নিশ্চয়তা।<br> ২. লাইফটাইম অ্যাক্টিভেশন ও সহজ সেটআপ গাইড।<br> ৩. সম্পূর্ণ ভাইরাস এবং ম্যালওয়্যার মুক্ত ফাইল।<br> ৪. যেকোনো সমস্যায় ২৪/৭ ডেডিকেটেড টিম সাপোর্ট।<br><br> আমাদের উপর আস্থা রাখার জন্য ধন্যবাদ। </p>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    <div id="trackingPanel" class="panel">
+        <button class="close-btn" onclick="closePanel('trackingPanel')">✕</button>
+        <h3 style="margin-top:50px; color:var(--blue); text-align:center;">আপনার অর্ডার ট্র্যাক করুন</h3><br>
+        <input type="text" id="trackOrderId" placeholder="আপনার মোবাইল নাম্বার দিন">
+        <button onclick="trackCustomerOrder()" style="background:var(--blue); color:white; width:100%; padding:12px; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">সার্চ করুন</button>
+        <div id="trackingStatusResult" style="margin-top:25px; padding:15px; border-radius:8px; background:#f8f9fa; font-weight:bold; text-align:center; display:none; border:1px solid #ddd; color: black;"></div>
+    </div>
+    
+    <div id="adminArea">
+        <h3>⚙️ অ্যাডমিন প্যানেল</h3>
+        <div id="stockAlertBox" style="display:none; padding:12px; background:#fff3cd; color:#856404; border:1px solid #ffeeba; border-radius:8px; margin-bottom:15px; font-size:13px; font-weight:bold;">⚠️ সর্তকতা: কিছু সফটওয়্যারের স্টক ৫ পিসের নিচে নেমে গেছে!</div>
 
+        <div style="background:#f8f9fa; padding:12px; border:1px solid #ddd; border-radius:8px; margin-bottom:15px; color: black; display:none;">
+            <input type="number" id="chargeInside" value="0">
+            <input type="number" id="chargeOutside" value="0">
+        </div>
+
+        <div class="filter-container">
+            <button class="filter-btn" style="background:#6c757d; color:white;" onclick="filterOrders('all')">সব অর্ডার</button>
+            <button class="filter-btn" style="background:#ffc107; color:black;" onclick="filterOrders('Pending')">পেন্ডিং</button>
+            <button class="filter-btn" style="background:#007bff; color:white;" onclick="filterOrders('Confirmed')">কনফার্ম</button>
+            <button class="filter-btn" style="background:#28a745; color:white;" onclick="filterOrders('Delivered')">ডেলিভার্ড</button>
+        </div>
+        <div id="adminOrderList" style="max-height:350px; overflow-y:auto; background:#f8f9fa; padding:10px; border-radius:8px; margin-bottom:15px; font-size:12px; border:1px solid #eee; display:none; color: black;"></div>
+
+        <input type="text" id="pName" placeholder="সফটওয়্যারের নাম">
+        <input type="number" id="pOld" placeholder="পুরানো মূল্য">
+        <input type="number" id="pPrice" placeholder="বিক্রয় মূল্য *">
+        <input type="number" id="pStock" placeholder="স্টক / লাইসেন্স সংখ্যা" value="50">
+        <textarea id="pDetail" placeholder="সফটওয়্যারের বিবরণ বা ফিচার সমূহ..."></textarea>
+        <select id="pCat">
+            <option value="বিজনেস সফটওয়্যার">বিজনেস সফটওয়্যার</option>
+            <option value="অ্যান্ড্রয়েড অ্যাপ">অ্যান্ড্রয়েড অ্যাপ</option>
+            <option value="প্রিমিয়াম টুলস">প্রিমিয়াম টুলস</option>
+            <option value="অন্যান্য">অন্যান্য</option>
+        </select>
+        <input type="file" id="pImg" accept="image/*">
+        <button onclick="addMedicine()" style="background:var(--blue); color:white; width:100%; padding:10px; border:none; border-radius:10px; font-weight:bold;">সফটওয়্যার যোগ করুন</button>
+    </div>
+    
+    <div class="products" id="grid"></div>
+    
+    <div id="cartPanel" class="panel">
+        <button class="close-btn" onclick="closePanel('cartPanel')">✕</button>
+        <h3 style="margin-top:40px; color:var(--blue); margin-bottom:20px;">🛒 আপনার শপিং ঝুড়ি</h3>
+        <div id="cartItemsList"></div>
+        <div style="font-size:18px; font-weight:bold; margin:20px 0; text-align:right; color: black;">মোট দাম: ৳<span id="cartSubTotal">0</span></div>
+        <button onclick="checkoutCart()" style="background:var(--green); color:white; width:100%; padding:12px; border:none; border-radius:25px; font-weight:bold; cursor:pointer;">সব একসাথে অর্ডার করুন</button>
+    </div>
+
+    <div id="imagePopup" class="img-popup">
+        <img id="popupImg" src="">
+        <button class="popup-close-btn" onclick="closeImagePopup()">✕ বন্ধ করুন</button>
+    </div>
+
+    <a href="https://wa.me/8801785686993?text=হ্যালো,%20আমি%20একটি%20সফটওয়্যার%20সম্পর্কে%20জানতে%20চাই।" 
+       style="position:fixed; width:55px; height:55px; bottom:90px; right:20px; background-color:#25d366; color:#FFF; border-radius:50px; text-align:center; font-size:32px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index:5000; display:flex; align-items:center; justify-content:center; text-decoration:none;" 
+       target="_blank">💬</a>
+
+    <div id="discount-popup" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background-color:rgba(0,0,0,0.7); justify-content:center; align-items:center; padding:20px;">
+      <div style="background-color:#fff; padding:25px; border-radius:15px; width:100%; max-width:360px; text-align:center; position:relative; box-shadow: 0 5px 25px rgba(0,0,0,0.3);">
+        <span onclick="document.getElementById('discount-popup').style.display='none'" 
+              style="position:absolute; top:10px; right:20px; font-size:28px; cursor:pointer; color:#aaa; font-weight:bold;">&times;</span>
+        <h2 style="color:var(--blue); margin-bottom:12px;">🌸 আসসালামু আলাইকুম 🌸</h2>
+        <p style="font-size:15px; color:#333; line-height:1.6; margin-bottom:20px;">
+          আমাদের **Premium Software Store** ওয়েবসাইটে আসার জন্য আপনাকে অসংখ্য ধন্যবাদ। <br>
+          <span style="color:#555; font-size:13px;">আপনার ব্যবসার ডিজিটাল সলিউশনের জন্য আমরা দিচ্ছি ১০০% সিকিউরড ও প্রিমিয়াম কোয়ালিটির সফটওয়্যার।</span>
+        </p>
+        <button onclick="document.getElementById('discount-popup').style.display='none'" 
+                style="background-color:var(--blue); color:white; padding:12px 30px; border:none; border-radius:25px; font-size:15px; font-weight:bold; cursor:pointer; width:100%;">প্রবেশ করুন</button>
+      </div>
+    </div>
+    
+    <div class="nav">
+        <button class="nav-btn" onclick="openPanel('categoryPanel')"><img src="https://cdn-icons-png.flaticon.com/512/711/711194.png">Category</button>
+        <a href="https://wa.me/8801785686993" class="nav-btn"><img src="https://cdn-icons-png.flaticon.com/512/5968/5968841.png">Message</a>
+        <div class="home-btn-container"><button class="nav-btn home-link" onclick="location.reload()"><img src="https://cdn-icons-png.flaticon.com/512/1946/1946436.png"></button></div>
+        <button class="nav-btn" onclick="openPanel('cartPanel')"><img src="https://cdn-icons-png.flaticon.com/512/1170/1170678.png">Cart</button>
+        <button class="nav-btn" onclick="openPanel('loginPanel')"><img src="https://cdn-icons-png.flaticon.com/512/1077/1077063.png">Login</button>
+    </div>
+    
+    <div id="categoryPanel" class="panel">
+        <button class="close-btn" onclick="closePanel('categoryPanel')">✕</button>
+        <h3 style="margin-top:50px; text-align:center; color:var(--blue);">ক্যাটাগরি সিলেক্ট করুন</h3><br>
+        <div class="menu-item" onclick="render('সব পণ্য'); closePanel('categoryPanel')">📦 সব সফটওয়্যার</div>
+        <div class="menu-item" onclick="render('বিজনেস সফটওয়্যার'); closePanel('categoryPanel')">🖥️ বিজনেস সফটওয়্যার</div>
+        <div class="menu-item" onclick="render('অ্যান্ড্রয়েড অ্যাপ'); closePanel('categoryPanel')">📱 অ্যান্ড্রয়েড অ্যাপ</div>
+        <div class="menu-item" onclick="render('প্রিমিয়াম টুলস'); closePanel('categoryPanel')">✨ প্রিমিয়াম টুলস</div>
+        <div class="menu-item" onclick="render('অন্যান্য'); closePanel('categoryPanel')">⚙️ অন্যান্য</div>
+    </div>
+    
+    <div id="orderForm" class="panel">
+        <button class="close-btn" onclick="closePanel('orderForm')">✕</button>
+        <h3 id="selectedInfo" style="margin-top:40px; color:var(--blue);">অর্ডার ফরম</h3><br>
+        <input type="text" id="custName" placeholder="আপনার নাম *">
+        <input type="number" id="custPhone" placeholder="মোবাইল নাম্বার *">
+        <input type="text" id="custEmail" placeholder="আপনার ইমেইল এড্রেস *">
+        <textarea id="custAddress" placeholder="যেকোনো অতিরিক্ত তথ্য বা মেসেজ..."></textarea>
+        
+        <div style="font-size:20px; font-weight:bold; margin-bottom:20px; color: black;">মোট বিল: ৳<span id="totalBill">0</span></div>
+        <a href="#" id="waFinal" class="wa-btn">💬 WhatsApp অর্ডার</a>
+        <a href="tel:01785686993" class="call-action-btn">📞 সরাসরি কল দিন</a>
+    </div>
+    
+    <div id="loginPanel" class="panel">
+        <button class="close-btn" onclick="closePanel('loginPanel')">✕</button>
+        <input type="password" id="adminPass" style="margin-top:100px;" placeholder="পাসওয়ার্ড">
+        <button class="confirm-btn" onclick="loginAdmin()">প্রবেশ করুন</button>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
+    <script>
+        // আপনার দেওয়া নতুন ফায়ারবেস ড্যাশবোর্ড কনফিগারেশন
         const firebaseConfig = {
             apiKey: "AIzaSyCQBADg7AoisxQRsgIrdNA8Zi26TMzLa-A",
             authDomain: "carding-boss.firebaseapp.com",
+            databaseURL: "https://carding-boss-default-rtdb.asia-southeast1.firebasedatabase.app/",
             projectId: "carding-boss",
             storageBucket: "carding-boss.firebasestorage.app",
             messagingSenderId: "848198839392",
             appId: "1:848198839392:web:fcb3fbe3aa63232987a705",
-            measurementId: "G-PEGH8Z55N6",
-            databaseURL: "https://carding-boss-default-rtdb.asia-southeast1.firebasedatabase.app/"
+            measurementId: "G-PEGH8Z55N6"
         };
 
-        const app = initializeApp(firebaseConfig);
-        const database = getDatabase(app);
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
 
-        window.placeOrder = function(productName, productPrice) {
-            const orderData = {
-                productName: productName,
-                price: productPrice,
-                timestamp: new Date().toISOString()
-            };
+        let liveProducts = [];
+        let myCart = []; 
+        let isAdmin = false, selectedPrice = 0, currentProductKey = "", isCartCheckout = false;
 
-            const ordersRef = ref(database, 'orders');
-            push(ordersRef, orderData)
-                .then(() => {
-                    const whatsappNumber = "8801785686993"; 
-                    const message = `হ্যালো! আমি ওয়েবসাইট থেকে "${productName}" (মূল্য: ${productPrice}) অর্ডারটি কনফার্ম করতে চাই।`;
-                    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
-                    window.open(whatsappUrl, '_blank');
-                })
-                .catch((error) => {
-                    alert("অর্ডার প্রসেস করতে সমস্যা হয়েছে।");
+        const { jsPDF } = window.jspdf;
+
+        function initApp() {
+            document.getElementById("grid").innerHTML = `<p id="loadingText" style="grid-column: 1/-1; text-align:center; color:#666; padding: 40px 20px; font-weight: bold;">🌱 লোড হচ্ছে, দয়া করে একটু অপেক্ষা করুন...</p>`;
+
+            database.ref('products').on('value', (snapshot) => {
+                const data = snapshot.val();
+                liveProducts = [];
+                let triggerAlert = false;
+                if (data) {
+                    Object.keys(data).forEach(key => {
+                        let p = data[key];
+                        p.fbKey = key;
+                        liveProducts.push(p);
+                        if(p.stock !== undefined && parseInt(p.stock) <= 5) { triggerAlert = true; }
+                    });
+                }
+                document.getElementById("stockAlertBox").style.display = triggerAlert ? "block" : "none";
+                render(); 
+            });
+        }
+
+        function searchProducts() {
+            let text = document.getElementById("searchBar").value.toLowerCase();
+            let matched = liveProducts.filter(p => p.name.toLowerCase().includes(text));
+            displayProductsList(matched);
+        }
+
+        function render(filter = "সব পণ্য") {
+            let filteredDB = (filter === "সব পণ্য") ? liveProducts : liveProducts.filter(p => p.cat === filter);
+            displayProductsList(filteredDB);
+        }
+
+        function displayProductsList(productsList) {
+            const grid = document.getElementById("grid");
+            grid.innerHTML = "";
+            if (productsList.length === 0) {
+                grid.innerHTML = `<p style="grid-column: 1/-1; text-align:center; color:#999; padding: 40px 20px;">কোনো সফটওয়্যার পাওয়া যায়নি। অ্যাডমিন প্যানেল থেকে অ্যাড করুন।</p>`;
+                return;
+            }
+
+            productsList.forEach((p) => {
+                let deleteButton = "";
+                let stockBadge = (p.stock !== undefined) ? `<div style="font-size:11px; color:#666; margin-bottom:3px;">স্টক: ${p.stock} পিস</div>` : "";
+                if (isAdmin && p.fbKey) {
+                    deleteButton = `<button onclick="delLiveProduct('${p.fbKey}')" style="color:red; border:none; background:none; font-size:11px; margin-top:10px; cursor:pointer;">[ডিলিট]</button>`;
+                }
+                grid.innerHTML += `<div class="card">
+                    <img src="${p.img}" onclick="zoomImage('${p.img}')" title="বড় করে দেখতে ক্লিক করুন">
+                    <h4 style="font-size:14px; margin-top:5px;">${p.name}</h4>
+                    <div class="benefit-box">${p.d || "কোনো বিবরণ নেই"}</div>
+                    ${stockBadge}
+                    <div class="price">৳${p.price} ${p.old ? `<span class="old-price">৳${p.old}</span>` : ""}</div>
+                    <button class="buy-btn" onclick="openOrder('${p.name}', ${p.price}, '${p.fbKey || ''}', false)">অর্ডার করুন</button>
+                    <button class="add-cart-btn" onclick="addToCart('${p.name}', ${p.price}, '${p.fbKey || ''}')">🛒 ঝুড়িতে রাখুন</button>
+                    ${deleteButton}
+                </div>`;
+            });
+        }
+
+        function addToCart(name, price, key) {
+            myCart.push({ name: name, price: parseInt(price), key: key });
+            document.getElementById("cartCount").innerText = myCart.length;
+            updateCartPanel();
+            alert(`"${name}" ঝুড়িতে যোগ হয়েছে!`);
+        }
+
+        function updateCartPanel() {
+            let list = document.getElementById("cartItemsList");
+            list.innerHTML = "";
+            let subtotal = 0;
+            myCart.forEach((item, index) => {
+                subtotal += item.price;
+                list.innerHTML += `<div class="cart-item">
+                    <div><b>${item.name}</b><br>৳${item.price}</div>
+                    <div class="cart-item-remove" onclick="removeFromCart(${index})">✕</div>
+                </div>`;
+            });
+            document.getElementById("cartSubTotal").innerText = subtotal;
+            if(myCart.length === 0) { list.innerHTML = "<p style='color:#999; text-align:center;'>ঝুড়ি খালি আছে।</p>"; }
+        }
+
+        function removeFromCart(index) {
+            myCart.splice(index, 1);
+            document.getElementById("cartCount").innerText = myCart.length;
+            updateCartPanel();
+        }
+
+        function checkoutCart() {
+            if(myCart.length === 0) return alert("ঝুড়ি খালি!");
+            let total = 0;
+            let names = myCart.map(i => i.name).join(", ");
+            myCart.forEach(i => total += i.price);
+            closePanel('cartPanel');
+            openOrder(names, total, "", true);
+        }
+
+        function zoomImage(imgSrc) {
+            document.getElementById("popupImg").src = imgSrc;
+            document.getElementById("imagePopup").style.display = "flex";
+        }
+
+        function closeImagePopup() { document.getElementById("imagePopup").style.display = "none"; }
+        
+        function toggleMenu() {
+            const menu = document.getElementById('sideMenu');
+            const overlay = document.getElementById('menuOverlay');
+            menu.classList.toggle('active');
+            overlay.style.display = menu.classList.contains('active') ? 'block' : 'none';
+        }
+
+        function openOrder(productName, price, productKey, fromCart) {
+            selectedPrice = parseInt(price);
+            currentProductKey = productKey;
+            isCartCheckout = fromCart;
+            document.getElementById("selectedInfo").innerText = "সফটওয়্যার: " + productName;
+            document.getElementById("totalBill").innerText = price;
+            
+            openPanel('orderForm');
+            
+            document.getElementById("waFinal").onclick = function() {
+                let n = document.getElementById("custName").value,
+                    p = document.getElementById("custPhone").value,
+                    eMail = document.getElementById("custEmail").value,
+                    a = document.getElementById("custAddress").value;
+                    
+                if(!n || !p || !eMail) return alert("দয়া করে নাম, ফোন এবং ইমেইল সহ সব তথ্য সঠিক উপায়ে দিন!");
+                
+                let finalBill = selectedPrice;
+
+                database.ref('orders').push({
+                    customerName: n, customerPhone: p, customerEmail: eMail, customerDetails: a, productName: productName,
+                    billAmount: finalBill, productPrice: selectedPrice, status: "Pending",
+                    date: new Date().toLocaleDateString('bn-BD')
                 });
-        };
+
+                if(!isCartCheckout && currentProductKey) {
+                    database.ref('products/' + currentProductKey + '/stock').transaction((currentStock) => {
+                        if (currentStock) { return currentStock - 1; }
+                        return currentStock;
+                    });
+                } else if(isCartCheckout) {
+                    myCart.forEach(item => {
+                        if(item.key) {
+                            database.ref('products/' + item.key + '/stock').transaction((s) => { return s ? s - 1 : s; });
+                        }
+                    });
+                    myCart = [];
+                    document.getElementById("cartCount").innerText = 0;
+                    updateCartPanel();
+                }
+
+                downloadInvoice(n, p, eMail, productName, finalBill);
+
+                let encodedText = encodeURIComponent(`*নতুন সফটওয়্যার অর্ডার!*\nপণ্য: ${productName}\nনাম: ${n}\nফোন: ${p}\nইমেইল: ${eMail}\nনোট: ${a}\nমোট বিল: ৳${finalBill}`);
+                window.open(`https://wa.me/8801785686993?text=${encodedText}`);
+            };
+        }
+
+        function downloadInvoice(name, phone, email, product, totalBill) {
+            const memoDiv = document.createElement('div');
+            memoDiv.style.width = '550px';
+            memoDiv.style.padding = '30px';
+            memoDiv.style.background = '#ffffff';
+            memoDiv.style.color = '#000000';
+            memoDiv.style.fontFamily = 'Arial, "Segoe UI", sans-serif';
+            memoDiv.style.position = 'absolute';
+            memoDiv.style.left = '-9999px'; 
+            memoDiv.style.top = '0';
+
+            memoDiv.innerHTML = `
+                <div style="background:#f4f4f4; padding:20px; text-align:center; border: 1px solid #ddd; margin-bottom:20px;">
+                    <h2 style="margin:0; color:#007bff; font-size:24px; font-weight:bold; letter-spacing:1px;">PREMIUM SOFTWARE STORE</h2>
+                    <p style="margin:5px 0 0 0; color:#555; font-size:12px;">Premium Digital Solutions & IT Services</p>
+                </div>
+                <h3 style="border-bottom:2px solid #333; padding-bottom:5px; font-size:16px;">CASH MEMO / INVOICE</h3>
+                <table style="width:100%; font-size:13px; margin-top:15px; border-collapse:collapse; line-height:1.6;">
+                    <tr><td style="width:120px; font-weight:bold; padding:4px 0;">Customer Name:</td><td style="padding:4px 0;">${name}</td></tr>
+                    <tr><td style="font-weight:bold; padding:4px 0;">Mobile Number:</td><td style="padding:4px 0;">${phone}</td></tr>
+                    <tr><td style="font-weight:bold; padding:4px 0;">Email:</td><td style="padding:4px 0;">${email}</td></tr>
+                </table>
+                <table style="width:100%; margin-top:25px; border-collapse:collapse; font-size:13px;">
+                    <thead>
+                        <tr style="background:#333; color:#fff;">
+                            <th style="text-align:left; padding:8px 10px; border:1px solid #333;">Software Details Description</th>
+                            <th style="text-align:right; padding:8px 10px; border:1px solid #333; width:100px;">Price</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="padding:12px 10px; border:1px solid #ddd; font-weight:bold; line-height:1.4;">${product}</td>
+                            <td style="padding:12px 10px; border:1px solid #ddd; text-align:right; font-weight:bold;">৳ ${totalBill}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div style="margin-top:25px; text-align:right; font-size:15px; font-weight:bold; color:#000;">
+                    Total Bill Amount: <span style="color:#007bff;">৳ ${totalBill}</span>
+                </div>
+                <div style="margin-top:50px; text-align:center; color:#25d366; font-weight:bold; font-size:13px; border-top:1px dashed #ccc; padding-top:15px;">
+                    Thank you for choosing Premium Software Store!
+                </div>
+            `;
+
+            document.body.appendChild(memoDiv);
+
+            html2canvas(memoDiv, { scale: 2, useCORS: true }).then(canvas => {
+                const imgData = canvas.toDataURL('image/jpeg', 1.0);
+                const pdf = new jsPDF('p', 'pt', 'a4');
+                const imgWidth = 515; 
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                pdf.addImage(imgData, 'JPEG', 40, 40, imgWidth, imgHeight);
+                pdf.save(`Invoice_${phone}.pdf`);
+                document.body.removeChild(memoDiv);
+            }).catch(err => {
+                console.error("PDF Generation Error: ", err);
+                if(document.body.contains(memoDiv)) document.body.removeChild(memoDiv);
+            });
+        }
+
+        function changeStatus(orderKey, newStatus) {
+            database.ref('orders/' + orderKey).update({ status: newStatus }).then(() => {
+                alert("স্ট্যাটাস সফলভাবে পরিবর্তন হয়েছে!");
+                filterOrders('all');
+            });
+        }
+
+        function addMedicine() {
+            let n = document.getElementById("pName").value, o = document.getElementById("pOld").value,
+                p = document.getElementById("pPrice").value, st = document.getElementById("pStock").value,
+                d = document.getElementById("pDetail").value, c = document.getElementById("pCat").value,
+                f = document.getElementById("pImg").files[0];
+            if(!n || !p || !f) return alert("সব তথ্য সঠিক উপায়ে দিন!");
+            let r = new FileReader();
+            r.onload = function(e) {
+                database.ref('products').push({
+                    name: n, old: o, price: p, stock: parseInt(st) || 50, d: d, cat: c, img: e.target.result
+                }).then(() => {
+                    alert("সফটওয়্যারটি সফলভাবে অনলাইন ডাটাবেজে সেভ হয়েছে!");
+                    document.getElementById("pName").value = ""; document.getElementById("pOld").value = "";
+                    document.getElementById("pPrice").value = ""; document.getElementById("pDetail").value = "";
+                });
+            };
+            r.readAsDataURL(f);
+        }
+
+        function trackCustomerOrder() {
+            let input = document.getElementById("trackOrderId").value.trim();
+            if(!input) return alert("মোবাইল নাম্বার দিন!");
+            
+            database.ref('orders').once('value', (snapshot) => {
+                let orders = snapshot.val(); let foundOrder = null;
+                if(orders) {
+                    Object.keys(orders).forEach(key => { if(orders[key].customerPhone === input) { foundOrder = orders[key]; } });
+                }
+                let resBox = document.getElementById("trackingStatusResult"); resBox.style.display = "block";
+                if(foundOrder) {
+                    resBox.innerHTML = `📦 পণ্য: ${foundOrder.productName}<br>💰 বিল: ৳${foundOrder.billAmount}<br>⚡ স্ট্যাটাস: <span style="color:var(--blue)">${foundOrder.status}</span>`;
+                } else { resBox.innerHTML = `❌ এই নাম্বারে কোনো অর্ডার পাওয়া যায়নি।`; }
+            });
+        }
+
+        function filterOrders(status) {
+            database.ref('orders').once('value', (snapshot) => {
+                let orders = snapshot.val();
+                let listArea = document.getElementById("adminOrderList");
+                listArea.style.display = "block";
+                listArea.innerHTML = "<h4>অর্ডার লিস্ট:</h4>";
+                if(orders) {
+                    Object.keys(orders).forEach(key => {
+                        let o = orders[key];
+                        if(status === 'all' || o.status === status) {
+                            listArea.innerHTML += `<div style="border-bottom:1px solid #ddd; padding:12px 0; line-height:1.6;">
+                                👤 <b>${o.customerName}</b> (${o.customerPhone})<br>📧 ${o.customerEmail || 'N/A'}<br>🛒 ${o.productName} - ৳${o.billAmount}<br>
+                                📌 স্ট্যাটাস: <b>${o.status}</b> <br>
+                                <div style="margin-top: 5px; display: flex; gap: 8px; flex-wrap: wrap;">
+                                    <button onclick="downloadInvoice('${o.customerName}','${o.customerPhone}','${o.customerEmail || ''}','${o.productName}','${o.billAmount}')" style="background:#6c757d; color:white; border:none; padding:5px 10px; border-radius:4px; font-size:11px; cursor:pointer; font-weight:bold;">📄 মেমো ডাউনলোড</button>
+                                    <button onclick="changeStatus('${key}', 'Confirmed')" style="background:#007bff; color:white; border:none; padding:5px 10px; border-radius:4px; font-size:11px; cursor:pointer; font-weight:bold;">✓ কনফার্ম করুন</button>
+                                    <button onclick="changeStatus('${key}', 'Delivered')" style="background:#28a745; color:white; border:none; padding:5px 10px; border-radius:4px; font-size:11px; cursor:pointer; font-weight:bold;">ডেলিভার্ড</button>
+                                </div>
+                            </div>`;
+                        }
+                    });
+                }
+            });
+        }
+
+        function loginAdmin() { if(document.getElementById("adminPass").value === "01943") { isAdmin = true; document.getElementById("adminArea").style.display = "block"; filterOrders('all'); closePanel('loginPanel'); render(); } }
+        function delLiveProduct(key) { if(confirm("এই পণ্যটি অনলাইন থেকে চিরতরে মুছে ফেলবেন?")) { database.ref('products/' + key).remove().then(() => { alert("পণ্যটি মুছে ফেলা হয়েছে!"); }); } }
+        function openPanel(id) { document.getElementById(id).style.display = 'block'; }
+        function closePanel(id) { document.getElementById(id).style.display = 'none'; }
+
+        window.addEventListener('load', () => {
+            setTimeout(() => { document.getElementById('discount-popup').style.display = 'flex'; }, 3000);
+        });
+
+        initApp();
     </script>
 </body>
 </html>
+
