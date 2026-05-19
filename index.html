@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="bn">
 <head>
@@ -6,6 +7,7 @@
     <title>Premium Software Store</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://unpkg.com/tesseract.js@v2.1.0/dist/tesseract.min.js"></script>
     <style>
         :root { --red: #ff0000; --green: #25d366; --blue: #007bff; --bg: #f4f4f4; --dark: #333; }
         * { margin:0; padding:0; box-sizing:border-box; font-family: 'Segoe UI', sans-serif; }
@@ -38,14 +40,13 @@
         
         .panel { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 7000; display: none; padding: 25px; overflow-y: auto; }
         .close-btn { float: right; font-size: 30px; border: none; background: none; color: #999; cursor: pointer; }
-        input, textarea, select { width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #ccc; border-radius: 8px; }
+        input, textarea, select { width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #ccc; border-radius: 8px; color: black;}
         .nav { position: fixed; bottom: 0; width: 100%; background: #fff; display: flex; justify-content: space-around; align-items: center; padding: 10px 0; z-index: 2000; border-top: 1px solid #eee; height: 75px; }
         .nav-btn { color: #555; text-align: center; font-size: 11px; background: none; border: none; flex: 1; cursor: pointer; display: flex; flex-direction: column; align-items: center; text-decoration: none; }
         .nav-btn img { width: 24px; margin-bottom: 4px; }
         .home-link { background: var(--blue); width: 65px; height: 65px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 5px solid white; position: relative; top: -25px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
         .home-link img { filter: invert(1); width: 35px; }
         .call-action-btn { background: var(--blue); color: white; width: 100%; padding: 15px; border: none; border-radius: 30px; font-weight: bold; display: flex; align-items: center; justify-content: center; text-decoration: none; margin-bottom: 10px; }
-        .sms-action-btn { background: #6c757d; color: white; width: 100%; padding: 15px; border: none; border-radius: 30px; font-weight: bold; display: flex; align-items: center; justify-content: center; text-decoration: none; }
         .wa-btn { background: var(--green); color: white; width: 100%; padding: 15px; border: none; border-radius: 30px; font-weight: bold; display: flex; align-items: center; justify-content: center; text-decoration: none; margin-bottom: 10px; }
         #adminArea { display: none; background: #fff; margin: 15px; padding: 20px; border: 2px solid var(--blue); border-radius: 15px; }
         .confirm-btn { background: var(--blue); color: white; padding: 10px 20px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
@@ -59,6 +60,10 @@
         
         .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; margin-bottom: 10px; color: black; }
         .cart-item-remove { color: red; cursor: pointer; font-weight: bold; }
+
+        /* এআই স্ক্যানিং এনিমেশন স্টাইল */
+        @keyframes scan { 0% { top: 0%; } 50% { top: 100%; } 100% { top: 0%; } }
+        .scanner-line { animation: scan 2s linear infinite; }
     </style>
 </head>
 <body>
@@ -77,6 +82,7 @@
     <div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
     <div class="side-menu" id="sideMenu">
         <h2 style="color: var(--blue); border-bottom: 2px solid var(--blue); padding-bottom: 10px; margin-bottom: 20px;">মেনু</h2>
+        <div class="menu-item" onclick="openPanel('aiPanel'); toggleMenu()">🤖 Satya Path AI Lens</div>
         <div class="menu-item" onclick="openPanel('aboutPanel'); toggleMenu()">🌟 আমাদের বিশেষত্ব কেন?</div>
         <div class="menu-item" onclick="openPanel('trackingPanel'); toggleMenu()">📦 অর্ডার ট্র্যাক করুন</div>
         <div class="menu-item" onclick="location.href='https://wa.me/8801785686993'">💬 কাস্টমার সাপোর্ট</div>
@@ -87,6 +93,40 @@
         <button class="close-btn" onclick="closePanel('aboutPanel')">✕</button>
         <h2 style="margin-top:40px; color:var(--blue);">আমাদের বিশেষত্ব কেন?</h2><br>
         <p style="line-height:1.6; color:#444;"> ১. ১০০% ওয়ার্কিং ও প্রিমিয়াম সফটওয়্যারের নিশ্চয়তা।<br> ২. লাইফটাইম অ্যাক্টিভেশন ও সহজ সেটআপ গাইড।<br> ৩. সম্পূর্ণ ভাইরাস এবং ম্যালওয়্যার মুক্ত ফাইল।<br> ৪. যেকোনো সমস্যায় ২৪/৭ ডেডিকেটেড টিম সাপোর্ট।<br><br> আমাদের উপর আস্থা রাখার জন্য ধন্যবাদ। </p>
+    </div>
+
+    <div id="aiPanel" class="panel" style="background: #111827; color: white;">
+        <button class="close-btn" onclick="closePanel('aiPanel')">✕</button>
+        <h3 style="margin-top:40px; color:#22d3ee; font-weight: bold; text-align: center; font-size: 22px;">Satya Path AI - Smart Lens</h3>
+        <p style="text-align:center; color:#9ca3af; font-size:13px; margin-bottom: 20px;">ছবি থেকে বাংলা ও ইংরেজি টেক্সট আলাদা করুন এবং ট্রান্সলেট করুন!</p>
+        
+        <div id="drop-zone" style="position:relative; border: 3px dashed #4b5563; border-radius:12px; padding:30px; text-align:center; cursor:pointer; background:#1f2937;" onclick="document.getElementById('file-input').click()">
+            <div id="scanner" style="position:absolute; left:0; w-full; width:100%; h-1; height:4px; background:#22d3ee; display:none;" class="scanner-line"></div>
+            <div id="upload-prompt">
+                <p style="font-size:14px; color:#d1d5db;">📸 এখানে ক্লিক করে ছবি সিলেক্ট করুন</p>
+            </div>
+            <img id="preview-img" style="max-h-52; max-height:200px; margin:0 auto; border-radius:8px; display:none;">
+            <input type="file" id="file-input" style="display:none;" accept="image/*" onchange="processImage(this.files[0])">
+        </div>
+
+        <div id="progress-container" style="display:none; margin-top:15px;">
+            <p id="progress-text" style="font-size:12px; color:#22d3ee; margin-bottom:4px;">এআই স্ক্যান করছে: ০%</p>
+            <div style="width:100%; background:#374151; height:8px; border-radius:10px; overflow:hidden;">
+                <div id="progress-bar" style="background:#22d3ee; width:0%; height:100%; transition: 0.2s;"></div>
+            </div>
+        </div>
+
+        <div style="margin-top:20px;">
+            <label style="display:block; text-align:left; font-size:12px; color:#9ca3af; margin-bottom:5px;">📋 ছবি থেকে প্রাপ্ত টেক্সট:</label>
+            <textarea id="extracted-text" style="width:100%; height:120px; background:#111827; border:1px solid #374151; color:white; border-radius:8px; padding:10px; font-size:14px; resize:none;" placeholder="প্রাপ্ত লেখা এখানে আসবে..."></textarea>
+            <button onclick="copyText('extracted-text')" style="background:#374151; color:white; font-size:12px; padding:6px 15px; border:none; border-radius:4px; cursor:pointer; margin-top:5px; float:right;">Copy</button>
+            <div style="clear:both;"></div>
+
+            <label style="display:block; text-align:left; font-size:12px; color:#9ca3af; margin-bottom:5px; margin-top:10px;">✨ অনুবাদ (বাংলা):</label>
+            <textarea id="translated-text" style="width:100%; height:120px; background:#111827; border:1px solid #374151; color:white; border-radius:8px; padding:10px; font-size:14px; resize:none;" placeholder="অনুবাদিত টেক্সট..."></textarea>
+            <button onclick="copyText('translated-text')" style="background:#374151; color:white; font-size:12px; padding:6px 15px; border:none; border-radius:4px; cursor:pointer; margin-top:5px; float:right;">Copy</button>
+            <div style="clear:both;"></div>
+        </div>
     </div>
 
     <div id="trackingPanel" class="panel">
@@ -100,11 +140,6 @@
     <div id="adminArea">
         <h3>⚙️ অ্যাডমিন প্যানেল</h3>
         <div id="stockAlertBox" style="display:none; padding:12px; background:#fff3cd; color:#856404; border:1px solid #ffeeba; border-radius:8px; margin-bottom:15px; font-size:13px; font-weight:bold;">⚠️ সর্তকতা: কিছু সফটওয়্যারের স্টক ৫ পিসের নিচে নেমে গেছে!</div>
-
-        <div style="background:#f8f9fa; padding:12px; border:1px solid #ddd; border-radius:8px; margin-bottom:15px; color: black; display:none;">
-            <input type="number" id="chargeInside" value="0">
-            <input type="number" id="chargeOutside" value="0">
-        </div>
 
         <div class="filter-container">
             <button class="filter-btn" style="background:#6c757d; color:white;" onclick="filterOrders('all')">সব অর্ডার</button>
@@ -155,7 +190,7 @@
         <h2 style="color:var(--blue); margin-bottom:12px;">🌸 আসসালামু আলাইকুম 🌸</h2>
         <p style="font-size:15px; color:#333; line-height:1.6; margin-bottom:20px;">
           আমাদের **Premium Software Store** ওয়েবসাইটে আসার জন্য আপনাকে অসংখ্য ধন্যবাদ। <br>
-          <span style="color:#555; font-size:13px;">আপনার ব্যবসার ডিজিটাল সলিউশনের জন্য আমরা দিচ্ছি ১০০% সিকিউরড ও প্রিমিয়াম কোয়ালিটির সফটওয়্যার।</span>
+          <span style="color:#555; font-size:13px;">আপনার ব্যবসার ডিজিটাল সリューションের জন্য আমরা দিচ্ছি ১০০% সিকিউরড ও প্রিমিয়াম কোয়ালিটির সফটওয়্যার।</span>
         </p>
         <button onclick="document.getElementById('discount-popup').style.display='none'" 
                 style="background-color:var(--blue); color:white; padding:12px 30px; border:none; border-radius:25px; font-size:15px; font-weight:bold; cursor:pointer; width:100%;">প্রবেশ করুন</button>
@@ -164,7 +199,7 @@
     
     <div class="nav">
         <button class="nav-btn" onclick="openPanel('categoryPanel')"><img src="https://cdn-icons-png.flaticon.com/512/711/711194.png">Category</button>
-        <a href="https://wa.me/8801785686993" class="nav-btn"><img src="https://cdn-icons-png.flaticon.com/512/5968/5968841.png">Message</a>
+        <button class="nav-btn" onclick="openPanel('aiPanel')"><img src="https://cdn-icons-png.flaticon.com/512/2103/2103633.png">AI Lens</button>
         <div class="home-btn-container"><button class="nav-btn home-link" onclick="location.reload()"><img src="https://cdn-icons-png.flaticon.com/512/1946/1946436.png"></button></div>
         <button class="nav-btn" onclick="openPanel('cartPanel')"><img src="https://cdn-icons-png.flaticon.com/512/1170/1170678.png">Cart</button>
         <button class="nav-btn" onclick="openPanel('loginPanel')"><img src="https://cdn-icons-png.flaticon.com/512/1077/1077063.png">Login</button>
@@ -182,7 +217,7 @@
     
     <div id="orderForm" class="panel">
         <button class="close-btn" onclick="closePanel('orderForm')">✕</button>
-        <h3 id="selectedInfo" style="margin-top:40px; color:var(--blue);">অর্ডার ফরম</h3><br>
+        <h3 id="selectedInfo" style="margin-top:40px; color:var(--blue);">অर्डर ফরম</h3><br>
         <input type="text" id="custName" placeholder="আপনার নাম *">
         <input type="number" id="custPhone" placeholder="মোবাইল নাম্বার *">
         <input type="text" id="custEmail" placeholder="আপনার ইমেইল এড্রেস *">
@@ -203,7 +238,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
     <script>
-        // আপনার দেওয়া নতুন ফায়ারবেস ড্যাশবোর্ড কনফিগারেশন
+        // আপনার দেওয়া আসল ফায়ারবেস কনফিগারেশন
         const firebaseConfig = {
             apiKey: "AIzaSyCQBADg7AoisxQRsgIrdNA8Zi26TMzLa-A",
             authDomain: "carding-boss.firebaseapp.com",
@@ -517,8 +552,105 @@
             setTimeout(() => { document.getElementById('discount-popup').style.display = 'flex'; }, 3000);
         });
 
+
+        // 🧠 🤖 নতুন যোগ করা AI লেন্স জাভাস্ক্রিপ্ট ইঞ্জিন (বাংলা + ইংরেজি সাপোর্ট)
+        function processImage(file) {
+            if (!file) return;
+
+            const previewImg = document.getElementById('preview-img');
+            const uploadPrompt = document.getElementById('upload-prompt');
+            const scanner = document.getElementById('scanner');
+            const progressContainer = document.getElementById('progress-container');
+            const progressText = document.getElementById('progress-text');
+            const progressBar = document.getElementById('progress-bar');
+            const extractedTextHtml = document.getElementById('extracted-text');
+            const translatedTextHtml = document.getElementById('translated-text');
+
+            // ইমেজ প্রিভিউ শো
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImg.src = e.target.result;
+                previewImg.style.display = 'block';
+                uploadPrompt.style.display = 'none';
+                scanner.style.display = 'block'; 
+                progressContainer.style.display = 'block';
+            }
+            reader.readAsDataURL(file);
+
+            extractedTextHtml.value = "";
+            translatedTextHtml.value = "";
+
+            // এআই প্রোসেস (eng+ben একসাথে রিড করবে)
+            Tesseract.recognize(
+                file,
+                'eng+ben', 
+                {
+                    logger: m => {
+                        if (m.status === 'recognizing text') {
+                            const progress = Math.round(m.progress * 100);
+                            progressText.innerText = `এআই স্ক্যান করছে: ${progress}%`;
+                            progressBar.style.width = `${progress}%`;
+                        }
+                    }
+                }
+            ).then(({ data: { text } }) => {
+                scanner.style.display = 'none';
+                progressContainer.style.display = 'none';
+                
+                if(!text || text.trim() === "") {
+                    extractedTextHtml.value = "ছবিতে কোনো লেখা খুঁজে পাওয়া যায়নি!";
+                    return;
+                }
+
+                extractedTextHtml.value = text;
+
+                // যদি ইংরেজি থাকে তাহলে ট্রান্সলেট হবে, না হলে সরাসরি দেখাবে
+                const hasEnglish = /[a-zA-Z]/.test(text);
+                if (hasEnglish) {
+                    translateText(text);
+                } else {
+                    translatedTextHtml.value = "ছবিতে সম্পূর্ণ বাংলা লেখা রয়েছে, তাই আলাদা অনুবাদের প্রয়োজন হয়নি।";
+                }
+
+            }).catch(err => {
+                console.error(err);
+                scanner.style.display = 'none';
+                progressContainer.style.display = 'none';
+                alert("প্রসেস করতে সমস্যা হয়েছে। আবার চেষ্টা করুন।");
+            });
+        }
+
+        // গুগল ফ্রি এপিআই দিয়ে ইংরেজি থেকে বাংলা অনুবাদ
+        function translateText(text) {
+            const translatedTextHtml = document.getElementById('translated-text');
+            translatedTextHtml.value = "অনুবাদ করা হচ্ছে...";
+            const apiUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=bn&dt=t&q=${encodeURIComponent(text)}`;
+
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    let translatedText = "";
+                    data[0].forEach(sentence => {
+                        if (sentence[0]) { translatedText += sentence[0]; }
+                    });
+                    translatedTextHtml.value = translatedText;
+                })
+                .catch(err => {
+                    console.error(err);
+                    translatedTextHtml.value = "অনুবাদ করতে সাময়িক সমস্যা হয়েছে।";
+                });
+        }
+
+        // কপি বাটন ফাংশন
+        function copyText(id) {
+            const textArea = document.getElementById(id);
+            if(textArea.value.trim() === "") return;
+            textArea.select();
+            document.execCommand('copy');
+            alert('টেক্সট কপি করা হয়েছে!');
+        }
+
         initApp();
     </script>
 </body>
 </html>
-
