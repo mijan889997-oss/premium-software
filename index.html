@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Software & IT Services</title>
+    <style>
+        /* আপনার ওয়েবসাইটের আগের সব সুন্দর ডিজাইন ও স্টাইল এখানে থাকবে */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        h1 { color: #333; }
+        .btn {
+            background-color: #25D366;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Premium Software & IT Services</h1>
+    <p>আপনার পছন্দের সফটওয়্যারটি অর্ডার করতে নিচের বাটনে চাপ দিন।</p>
+    
+    <a href="#" class="btn" id="orderBtn">হোয়াটসঅ্যাপে অর্ডার করুন</a>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
+    import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    // আপনার দেওয়া ফায়ারবেস কনফিগারেশন ও ডাটাবেজ লিংক
+    const firebaseConfig = {
+      apiKey: "AIzaSyCQBADg7AoisxQRsgIrdNA8Zi26TMzLa-A",
+      authDomain: "carding-boss.firebaseapp.com",
+      projectId: "carding-boss",
+      storageBucket: "carding-boss.firebasestorage.app",
+      messagingSenderId: "848198839392",
+      appId: "1:848198839392:web:fcb3fbe3aa63232987a705",
+      measurementId: "G-PEGH8Z55N6",
+      databaseURL: "https://carding-boss-default-rtdb.asia-southeast1.firebasedatabase.app/"
+    };
+
+    // ফায়ারবেস ইনিশিয়েট
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const database = getDatabase(app);
+
+    // হোয়াটসঅ্যাপে মেসেজ পাঠানোর এবং ডাটাবেজে সেভ করার স্ক্রিপ্ট
+    document.getElementById('orderBtn').addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        // অর্ডারের তথ্য ডাটাবেজে সেভ করার জন্য
+        const orderData = {
+            productName: "Premium Software Service",
+            timestamp: new Date().toISOString()
+        };
+        
+        const ordersRef = ref(database, 'orders');
+        push(ordersRef, orderData).then(() => {
+            // ডাটাবেজে সেভ হওয়ার পর আপনার দেওয়া হোয়াটসঅ্যাপ নাম্বারে মেসেজ যাবে
+            var phoneNumber = "8801785686993"; 
+            var message = "হ্যালো! আমি প্রিমিয়াম সফটওয়্যার ওয়েবসাইট থেকে একটি সার্ভিস অর্ডার করতে চাই।";
+            
+            var whatsappUrl = "https://wa.me/" + phoneNumber + "?text=" + encodeURIComponent(message);
+            window.open(whatsappUrl, '_blank');
+        }).catch((error) => {
+            console.error("Database Error: ", error);
+        });
+    });
+</script>
+
+</body>
+</html>
